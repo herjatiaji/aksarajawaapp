@@ -21,7 +21,7 @@
         app:srcCompat="@drawable/navbottom" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/cameraButton"
         android:layout_width="94dp"
         android:layout_height="116dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView3"
@@ -31,24 +31,24 @@
         app:srcCompat="@drawable/scan" />
 
     <ImageView
-        android:id="@+id/imageView5"
+        android:id="@+id/btnHome"
         android:layout_width="71dp"
         android:layout_height="64dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-        app:layout_constraintEnd_toStartOf="@+id/imageView4"
+        app:layout_constraintEnd_toStartOf="@+id/cameraButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/imageView3"
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:srcCompat="@drawable/home" />
 
     <ImageView
-        android:id="@+id/imageView6"
+        android:id="@+id/btnProfile"
         android:layout_width="70dp"
         android:layout_height="63dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView3"
         app:layout_constraintEnd_toEndOf="@+id/imageView3"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView4"
+        app:layout_constraintStart_toEndOf="@+id/cameraButton"
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.504"
         app:srcCompat="@drawable/profile" />

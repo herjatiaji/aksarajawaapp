@@ -2,32 +2,23 @@ package com.example.ocraksarajawa
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.ocraksarajawa.databinding.ActivityMainBinding
+import com.example.ocraksarajawa.databinding.ActivityLoginBinding
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-
+class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
     override fun onCreate(savedInstanceState: Bundle?) {
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.cameraButton.setOnClickListener{
-            Intent(this,CameraActivity::class.java)
-        }
-
-        binding.btnHome.setOnClickListener{
-            Toast.makeText(this,"Home button Clicked",Toast.LENGTH_LONG).show()
-        }
-
-        binding.btnProfile.setOnClickListener{
-            Toast.makeText(this,"Profile button Clicked",Toast.LENGTH_LONG).show()
-        }
         setContentView(binding.root)
+        binding.buttonLogin.setOnClickListener{
+            Intent(this,MainActivity::class.java)
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
