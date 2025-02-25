@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background transparan gelap -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#80000000"/> <!-- Hitam transparan -->
+        </shape>
+    </item>
+
+    <!-- Kotak scanner -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+            <size android:width="300dp" android:height="120dp"/> <!-- Sesuai area scanner PhotoMath -->
+            <stroke android:width="4dp" android:color="#FFFFFF"/>
+            <corners android:radius="16dp"/> <!-- Sudut melengkung -->
+        </shape>
+        <gravity />
+    </item>
+
+</layer-list>
