@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.ocraksarajawa.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
@@ -17,7 +18,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         binding.cameraButton.setOnClickListener{
-            Intent(this,CameraActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnHome.setOnClickListener{
