@@ -3,6 +3,7 @@ package com.example.ocraksarajawa
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -95,6 +96,7 @@ class CameraActivity : AppCompatActivity() {
                 val bitmap = imageProxyToBitmap(image)
                 val croppedBitmap = cropToScannerArea(bitmap)
                 showImagePopup(croppedBitmap)
+                saveImageToGallery(croppedBitmap)
                 image.close()
             }
 
@@ -181,6 +183,7 @@ class CameraActivity : AppCompatActivity() {
         val cropWidth = (overlayWidth * scaleX).toInt()
         val cropHeight = (overlayHeight * scaleY).toInt()
 
+
         // Pastikan crop tidak keluar batas gambar
         return Bitmap.createBitmap(
             bitmap,
@@ -190,6 +193,23 @@ class CameraActivity : AppCompatActivity() {
             cropHeight.coerceAtMost(bitmap.height - cropY)
         )
     }
+    private fun saveImageToGallery(bitmap: Bitmap) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "cropped_image_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/OCR_AksaraJawa")
+        }
+
+        val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        uri?.let {
+            contentResolver.openOutputStream(it)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                Toast.makeText(this, "Gambar berhasil disimpan ke galeri", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(this, "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 
     private fun allPermissionsGranted(): Boolean {
