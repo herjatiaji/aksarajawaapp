@@ -22,10 +22,23 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.camera.view.PreviewView
+import com.example.ocraksarajawa.network.ApiService
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.ResponseBody
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.io.FileOutputStream
 
 class CameraActivity : AppCompatActivity() {
 
@@ -105,6 +118,60 @@ class CameraActivity : AppCompatActivity() {
             }
         })
     }
+    private fun uploadImageToOCR(bitmap: Bitmap) {
+        // Simpan gambar ke file sementara
+        val file = File(cacheDir, "ocr_image.jpg")
+        val outputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+
+
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+
+        val imagePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        // Retrofit Setup
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://192.168.0.108:8000/") // Ganti dengan IP server API-mu
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiService = retrofit.create(ApiService::class.java)
+
+        // Kirim gambar ke API
+        apiService.uploadImage(imagePart).enqueue(object : retrofit2.Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    response.body()?.string()?.let { responseBody ->
+                        try {
+                            val jsonObject = JSONObject(responseBody)
+                            val finalSentence = jsonObject.getString("final_sentence") // Ambil final_sentence
+
+                            // Tampilkan hasil dalam Toast
+                            runOnUiThread {
+                                Toast.makeText(this@CameraActivity, "Hasil OCR: $finalSentence", Toast.LENGTH_LONG).show()
+                            }
+
+                            // Opsional: Tampilkan dalam Popup Dialog
+                            showResultPopup(finalSentence)
+
+                        } catch (e: Exception) {
+                            Log.e("OCR Upload", "Error parsing JSON: ${e.message}")
+                        }
+                    }
+                } else {
+                    Log.e("OCR Upload", "Gagal: ${response.errorBody()?.string()}")
+                    Toast.makeText(this@CameraActivity, "Gagal mengunggah gambar", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("OCR Upload", "Error: ${t.message}")
+                Toast.makeText(this@CameraActivity, "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
 
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -124,6 +191,13 @@ class CameraActivity : AppCompatActivity() {
             }
         }
     }
+    private fun showResultPopup(text: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Hasil OCR")
+            .setMessage(text)
+            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
 
     private fun showImagePopup(bitmap: Bitmap) {
         val imageView = ImageView(this).apply {
@@ -136,6 +210,7 @@ class CameraActivity : AppCompatActivity() {
             .setView(imageView)
             .setPositiveButton("OK") { dialog, _ ->
                 dialog.dismiss()
+                uploadImageToOCR(bitmap) // Kirim gambar ke API OCR setelah klik OK
             }
             .show()
     }
