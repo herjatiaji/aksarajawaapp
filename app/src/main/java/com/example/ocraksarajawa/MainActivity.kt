@@ -7,9 +7,9 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ocraksarajawa.databinding.ActivityMainBinding
+import com.example.ocraksarajawa.model.TranslationRequest
+import com.example.ocraksarajawa.model.TranslationResponse
 import com.example.ocraksarajawa.network.ApiClient
-import com.example.ocraksarajawa.network.TranslationRequest
-import com.example.ocraksarajawa.network.TranslationResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.playButton.setOnClickListener {
-            val inputText = binding.translationText.text.toString()
+            val inputText = binding.translationText.text.toString().trim()
             if (inputText.isNotEmpty()) {
                 translateText(inputText)
             } else {
@@ -33,16 +33,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.cameraButton.setOnClickListener{
+        binding.cameraButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
         }
-        binding.btnHome.setOnClickListener{
-            Toast.makeText(this,"Home button Clicked",Toast.LENGTH_LONG).show()
+
+        binding.btnHome.setOnClickListener {
+            Toast.makeText(this, "Home button Clicked", Toast.LENGTH_LONG).show()
         }
 
-        binding.btnProfile.setOnClickListener{
-            Toast.makeText(this,"Profile button Clicked",Toast.LENGTH_LONG).show()
+        binding.btnProfile.setOnClickListener {
+            Toast.makeText(this, "Profile button Clicked", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -51,10 +52,14 @@ class MainActivity : AppCompatActivity() {
         ApiClient.instance.translateText(request).enqueue(object : Callback<TranslationResponse> {
             override fun onResponse(call: Call<TranslationResponse>, response: Response<TranslationResponse>) {
                 if (response.isSuccessful) {
-                    val translatedText = response.body()?.translatedText ?: "Gagal menerjemahkan"
+                    val translationResponse = response.body()
+                    val translatedText = translationResponse?.cleaned_translation ?: "Gagal menerjemahkan"
+
+                    // Menampilkan hasil terjemahan di EditText
                     binding.translationText.setText(translatedText)
                 } else {
-                    Toast.makeText(this@MainActivity, "Terjemahan gagal", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Terjemahan gagal: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Terjemahan gagal: ${response.errorBody()?.string()}")
                 }
             }
 
