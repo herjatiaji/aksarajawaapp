@@ -39,11 +39,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnHome.setOnClickListener {
-            Toast.makeText(this, "Home button Clicked", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnProfile.setOnClickListener {
-            Toast.makeText(this, "Profile button Clicked", Toast.LENGTH_LONG).show()
+            val intentProfile = Intent(this, ProfileActivity::class.java)
+            startActivity(intentProfile)
         }
     }
 

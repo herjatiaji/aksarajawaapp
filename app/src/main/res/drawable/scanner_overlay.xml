@@ -5,6 +5,7 @@
     <item>
         <shape android:shape="rectangle">
             <solid android:color="#80000000"/> <!-- Hitam transparan -->
+            <corners android:radius="18dp"/>
         </shape>
     </item>
 
