@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="32dp"
-            android:text="Hola, "
+            android:text="Monggo, "
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -90,17 +90,19 @@
         app:layout_constraintTop_toBottomOf="@id/header" />
 
     <!-- Translation Box -->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/translationBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="376dp"
+        android:layout_height="205dp"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/bg_rounded_box"
         android:elevation="4dp"
         android:padding="12dp"
         android:radius="12dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleText">
 
@@ -108,10 +110,10 @@
             android:id="@+id/langJawa"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:layout_marginStart="15dp"
             android:background="@drawable/bg_switch_lang"
             android:text="Bahasa Jawa"
             android:textColor="#FFFFFF"
-            android:layout_marginStart="15dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -121,22 +123,22 @@
             android:layout_height="48dp"
             android:layout_marginHorizontal="8dp"
             android:background="@drawable/bg_switch_lang"
-            android:src="@drawable/switch_lang"
-            android:scaleType="fitCenter"
-            android:textColor="#FFFFFF"
             android:importantForAccessibility="no"
-            app:layout_constraintStart_toEndOf="@id/langJawa"
+            android:scaleType="fitCenter"
+            android:src="@drawable/switch_lang"
+            android:textColor="#FFFFFF"
             app:layout_constraintEnd_toStartOf="@id/langAksara"
+            app:layout_constraintStart_toEndOf="@id/langJawa"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/langAksara"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:layout_marginEnd="15dp"
             android:background="@drawable/bg_switch_lang"
             android:text="Aksara Jawa"
             android:textColor="#FFFFFF"
-            android:layout_marginEnd="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -145,10 +147,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:minHeight="48dp"
             android:hint="Mangga nyerat ukara ing mriki."
-            android:textColorHint="#BCBCBC"
+            android:minHeight="48dp"
             android:textColor="@color/white"
+            android:textColorHint="#BCBCBC"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -158,28 +160,29 @@
             android:id="@+id/playButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/circle_button"
-            android:src="@drawable/translate_icon"
-            android:scaleType="fitCenter"
-            android:layout_marginEnd="15dp"
             android:layout_marginTop="15dp"
+            android:layout_marginEnd="15dp"
             android:layout_marginBottom="15dp"
+            android:background="@drawable/circle_button"
             android:importantForAccessibility="no"
-            app:layout_constraintTop_toBottomOf="@id/translationText"
+            android:scaleType="fitCenter"
+            android:src="@drawable/translate_icon"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/translationText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="273dp"
-        android:layout_height="168dp"
+        android:layout_width="252dp"
+        android:layout_height="160dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.933"
+        app:layout_constraintVertical_bias="0.97"
         app:srcCompat="@drawable/navbottom" />
 
     <ImageView
@@ -228,4 +231,44 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="84dp" />
+
+    <TextView
+        android:id="@+id/tvLoad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Translating..."
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.081"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/translationBox" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/translationResult"
+        android:layout_width="376dp"
+        android:layout_height="132dp"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/rounded_card_red2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.542"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/translationBox">
+
+        <EditText
+            android:id="@+id/translationTextResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Hasil"
+            android:minHeight="48dp"
+            android:textColor="@color/white"
+            android:textColorHint="#BCBCBC"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

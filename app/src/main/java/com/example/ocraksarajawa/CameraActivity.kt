@@ -133,7 +133,7 @@ class CameraActivity : AppCompatActivity() {
 
         // Retrofit Setup
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.0.108:8000/") // Ganti dengan IP server API-mu
+            .baseUrl("http://192.168.0.106:8000/") // Ganti dengan IP server API-mu
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
