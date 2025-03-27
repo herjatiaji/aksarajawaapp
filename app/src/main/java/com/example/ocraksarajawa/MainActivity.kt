@@ -1,7 +1,11 @@
 package com.example.ocraksarajawa
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -19,7 +23,14 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val TAG = "MainActivity"
+    private var dotCount = 0
+    private val handler = android.os.Handler(Looper.getMainLooper())
+    private lateinit var dotRunnable: Runnable
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity() // Menutup semua activity, keluar dari aplikasi
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,6 +51,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+
         binding.cameraButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             startActivity(intent)
@@ -54,7 +67,43 @@ class MainActivity : AppCompatActivity() {
             val intentProfile = Intent(this, ProfileActivity::class.java)
             startActivity(intentProfile)
         }
+        binding.btnCopy.setOnClickListener {
+            val textToCopy = binding.translationTextResult.text.toString()
+            if (textToCopy.isNotEmpty()) {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Hasil Terjemahan", textToCopy)
+                clipboard.setPrimaryClip(clip)
+
+                Toast.makeText(this, "Teks berhasil disalin ke clipboard", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Tidak ada teks untuk disalin", Toast.LENGTH_SHORT).show()
+            }
+        }
+        binding.profileImage.setOnClickListener{
+            val intentProfile = Intent(this, ProfileActivity::class.java)
+            startActivity(intentProfile)
+        }
+
     }
+    private fun startTranslatingAnimation() {
+        dotRunnable = object : Runnable {
+            override fun run() {
+                val dots = ".".repeat(dotCount % 4) //
+                binding.tvLoad.text = "Translating$dots"
+                dotCount++
+                handler.postDelayed(this, 200) //
+            }
+        }
+        handler.post(dotRunnable)
+    }
+    private fun stopTranslatingAnimation() {
+        handler.removeCallbacks(dotRunnable)
+        dotCount = 0
+    }
+
+
+
+
 
     private fun translateText(text: String) {
         val request = TranslationRequest(text)
@@ -62,10 +111,12 @@ class MainActivity : AppCompatActivity() {
         // Tampilkan indikator loading dan sembunyikan hasil terjemahan sementara
         binding.tvLoad.visibility = View.VISIBLE
         binding.translationResult.visibility = View.GONE
+        startTranslatingAnimation()
 
         ApiClient.instance.translateText(request).enqueue(object : Callback<TranslationResponse> {
             override fun onResponse(call: Call<TranslationResponse>, response: Response<TranslationResponse>) {
                 binding.tvLoad.visibility = View.GONE // Sembunyikan loading
+                stopTranslatingAnimation()
 
                 if (response.isSuccessful) {
                     val translationResponse = response.body()
@@ -83,6 +134,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<TranslationResponse>, t: Throwable) {
+                stopTranslatingAnimation()
                 binding.tvLoad.visibility = View.GONE // Sembunyikan loading
                 Toast.makeText(this@MainActivity, "Kesalahan jaringan: ${t.message}", Toast.LENGTH_LONG).show()
                 Log.e(TAG, "Terjadi kesalahan: ${t.message}")

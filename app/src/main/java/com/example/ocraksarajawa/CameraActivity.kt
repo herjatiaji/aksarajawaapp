@@ -3,7 +3,10 @@ package com.example.ocraksarajawa
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -15,6 +18,7 @@ import android.util.Log
 import android.view.Surface
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -23,6 +27,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.camera.view.PreviewView
 import com.example.ocraksarajawa.network.ApiService
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -46,6 +51,16 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private var imageCapture: ImageCapture? = null
     private lateinit var buttonGallery: ImageButton
+    private var loadingDialog: BottomSheetDialog? = null
+
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +69,8 @@ class CameraActivity : AppCompatActivity() {
         previewView = findViewById(R.id.previewView)
         val buttonCapture: ImageButton = findViewById(R.id.buttonCapture)
         buttonGallery = findViewById(R.id.buttonGallery)
+
+
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -70,6 +87,7 @@ class CameraActivity : AppCompatActivity() {
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
     }
 
     private fun startCamera() {
@@ -118,8 +136,22 @@ class CameraActivity : AppCompatActivity() {
             }
         })
     }
+    private fun showLoading() {
+        if (loadingDialog == null) {
+            val view = layoutInflater.inflate(R.layout.bottom_sheet_loading, null)
+            loadingDialog = BottomSheetDialog(this)
+            loadingDialog?.setContentView(view)
+            loadingDialog?.setCancelable(false)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun hideLoading() {
+        loadingDialog?.dismiss()
+    }
+
     private fun uploadImageToOCR(bitmap: Bitmap) {
-        // Simpan gambar ke file sementara
+        showLoading()
         val file = File(cacheDir, "ocr_image.jpg")
         val outputStream = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
@@ -133,7 +165,7 @@ class CameraActivity : AppCompatActivity() {
 
         // Retrofit Setup
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.0.106:8000/") // Ganti dengan IP server API-mu
+            .baseUrl("https://model-serving-aksara-jawa.onrender.com/") // Ganti dengan IP server API-mu
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -142,6 +174,7 @@ class CameraActivity : AppCompatActivity() {
         // Kirim gambar ke API
         apiService.uploadImage(imagePart).enqueue(object : retrofit2.Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: retrofit2.Response<ResponseBody>) {
+                hideLoading()
                 if (response.isSuccessful) {
                     response.body()?.string()?.let { responseBody ->
                         try {
@@ -167,6 +200,7 @@ class CameraActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                hideLoading()
                 Log.e("OCR Upload", "Error: ${t.message}")
                 Toast.makeText(this@CameraActivity, "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
             }
@@ -192,11 +226,8 @@ class CameraActivity : AppCompatActivity() {
         }
     }
     private fun showResultPopup(text: String) {
-        AlertDialog.Builder(this)
-            .setTitle("Hasil OCR")
-            .setMessage(text)
-            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            .show()
+        showResultBottomSheet(text)
+
     }
 
     private fun showImagePopup(bitmap: Bitmap) {
@@ -268,6 +299,26 @@ class CameraActivity : AppCompatActivity() {
             cropHeight.coerceAtMost(bitmap.height - cropY)
         )
     }
+    private fun showResultBottomSheet(result: String) {
+        val bottomSheetView = layoutInflater.inflate(R.layout.bottom_sheet_result, null)
+
+        val textViewResult = bottomSheetView.findViewById<TextView>(R.id.tvResult)
+        val btnCopy = bottomSheetView.findViewById<ImageView>(R.id.btnCopy)
+        textViewResult.text = result
+        btnCopy.setOnClickListener {
+            val textToCopy = textViewResult.text.toString()
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Hasil OCR", textToCopy)
+            clipboard.setPrimaryClip(clip)
+
+            Toast.makeText(this, "Teks berhasil disalin!", Toast.LENGTH_SHORT).show()
+        }
+
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(bottomSheetView)
+        dialog.show()
+    }
+
     private fun saveImageToGallery(bitmap: Bitmap) {
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "cropped_image_${System.currentTimeMillis()}.jpg")
