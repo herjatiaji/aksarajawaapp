@@ -219,8 +219,7 @@ class CameraActivity : AppCompatActivity() {
             data?.data?.let { uri ->
                 val bitmap = uriToBitmap(uri)
                 bitmap?.let {
-                    val croppedBitmap = cropToScannerArea(it)
-                    showImagePopup(croppedBitmap)
+                    uploadImageToOCR(it)
                 }
             }
         }
